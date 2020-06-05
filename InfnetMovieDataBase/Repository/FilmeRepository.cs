@@ -56,10 +56,9 @@ namespace InfnetMovieDataBase.Repository
         {
             using var connection = new SqlConnection(connectionString);
 
-            var cmdText = "INSERT INTO Filme (Titulo, TituloOriginal, Ano) VALUES (@Titulo, @TituloOriginal, @Ano)";
-            var insert = new SqlCommand(cmdText, connection);
-
-            insert.CommandType = CommandType.Text;
+            var sp = "CriarFilme";
+            var insert = new SqlCommand(sp, connection);
+            insert.CommandType = CommandType.StoredProcedure;
 
             insert.Parameters.AddWithValue("@Titulo", filme.Titulo);
             insert.Parameters.AddWithValue("@TituloOriginal", filme.TituloOriginal);
@@ -170,6 +169,42 @@ namespace InfnetMovieDataBase.Repository
             {
 
             }
+        }
+
+        public IEnumerable<Pessoa> ListarElenco(int id)
+        {
+            var elenco = new List<Pessoa>();
+
+            using var connection = new SqlConnection(connectionString);
+            var sp = "ListarAtoresPorFilme";
+            
+            var sqlCommand = new SqlCommand(sp, connection);
+            sqlCommand.CommandType = CommandType.StoredProcedure;
+            sqlCommand.Parameters.AddWithValue("@FilmeId", id);
+
+            try
+            {
+                connection.Open();
+                using var reader = sqlCommand.ExecuteReader(CommandBehavior.CloseConnection);
+                while (reader.Read())
+                {
+                    var pessoa = new Pessoa()
+                    {
+                        Nome = reader["Nome"].ToString(),
+                        Sobrenome = reader["Sobrenome"].ToString()
+                    };
+                    elenco.Add(pessoa);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return elenco;
         }
     }
 }

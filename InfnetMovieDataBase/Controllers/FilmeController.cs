@@ -14,6 +14,12 @@ namespace InfnetMovieDataBase.Controllers
             return View(filmes);
         }
 
+        public ActionResult Elenco(int id)
+        {
+            var elenco = repository.ListarElenco(id);
+            return View(elenco);
+        }
+
         // GET: Filme/Details/5
         public ActionResult Details(int id)
         {
